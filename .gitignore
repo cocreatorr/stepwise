@@ -1,0 +1,45 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.pnp
+.pnp.js
+
+# =========================
+# Next.js build output
+# =========================
+.next/
+out/
+
+# =========================
+# Sanity Studio build/runtime
+# =========================
+dist/
+.sanity/
+
+# =========================
+# Logs & coverage
+# =========================
+logs/
+*.log
+coverage/
+
+# =========================
+# Misc system files
+# =========================
+.DS_Store
+*.pem
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Environment variables
+# =========================
+.env*
+*.local
+
