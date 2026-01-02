@@ -1,0 +1,37 @@
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches:
+      - main   # or your production branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout your repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. Install dependencies in Studio folder
+      - name: Install dependencies
+        run: npm install
+        working-directory: stepwise-studio
+
+      # 4. Install Sanity CLI globally
+      - name: Install Sanity CLI
+        run: npm install -g @sanity/cli
+
+      # 5. Deploy Sanity Studio
+      - name: Deploy Sanity Studio
+        run: sanity deploy
+        working-directory: stepwise-studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
