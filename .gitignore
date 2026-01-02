@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # =========================
 # Dependencies
 # =========================
@@ -40,12 +38,17 @@ coverage/
 # =========================
 # Environment variables
 # =========================
-.env*
-*.local
+.env*        # ignore .env, .env.local, .env.production, etc.
+*.local      # ignore any .local files (Next.js convention)
 
-# Ignore environment files
-.env
+# =========================
+# Deployment metadata
+# =========================
+.vercel/
+.netlify/
 
-.env.local
-
-
+# =========================
+# IDE/editor configs
+# =========================
+.vscode/
+.idea/
