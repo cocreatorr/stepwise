@@ -1,12 +1,10 @@
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
-import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
-import { schemaTypes } from './schemas'  // <-- your schema definitions
+import { schemaTypes } from './schemas'  // <-- index.ts is auto-resolved
 
-// Pull values from environment variables
-const projectId = process.env.SANITY_PROJECT_ID!
-const dataset = process.env.SANITY_DATASET!
+const projectId = 'mejutefa'
+const dataset = 'production'
 
 export default defineConfig({
   name: 'default',
@@ -15,14 +13,11 @@ export default defineConfig({
   projectId,
   dataset,
 
-  // Plugins: Desk, Structure, Vision
   plugins: [
     deskTool(),
-    structureTool(),   // optional: customize Desk structure
-    visionTool(),      // optional: GROQ query playground
+    visionTool(),
   ],
 
-  // Schema definitions
   schema: {
     types: schemaTypes,
   },
