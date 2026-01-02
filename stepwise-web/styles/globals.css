@@ -1,0 +1,53 @@
+/* Tailwind base layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Tailwind theme inline variables */
+@import "tailwindcss";
+
+/* Font variables from next/font/google */
+:root {
+  --font-geist-sans: 'Geist', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+
+  /* Light mode defaults */
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Map CSS variables into Tailwind theme tokens */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Apply font globally */
+html {
+  font-family: var(--font-geist-sans);
+}
+
+/* Body styles with Tailwind utilities */
+body {
+  @apply antialiased bg-background text-foreground;
+}
+
+/* Utility overrides for consistent typography */
+code, pre {
+  font-family: var(--font-geist-mono);
+}
+
+/* Smooth transitions for dark mode */
+* {
+  @apply transition-colors duration-200;
+}
