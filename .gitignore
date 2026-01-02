@@ -28,6 +28,7 @@ coverage/
 # Misc system files
 # =========================
 .DS_Store
+Thumbs.db
 *.pem
 
 # =========================
@@ -38,8 +39,13 @@ coverage/
 # =========================
 # Environment variables
 # =========================
-.env*        # ignore .env, .env.local, .env.production, etc.
-*.local      # ignore any .local files (Next.js convention)
+.env*                  # ignore .env, .env.local, .env.production, etc.
+*.local                # ignore any .local files (Next.js convention)
+stepwise-studio/.env   # explicitly ignore Studio env
+stepwise-web/.env      # explicitly ignore Web env
+
+# git-secret
+*.secret               # commit encrypted secrets only, ignore raw files
 
 # =========================
 # Deployment metadata
