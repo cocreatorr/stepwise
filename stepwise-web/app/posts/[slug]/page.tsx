@@ -19,9 +19,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }): Promise<Metadata> {
-  const { slug } = await params; // ✅ unwrap promise
+  const { slug } = params;
   if (!slug) {
     return { title: "Post", description: "Missing slug" };
   }
@@ -41,9 +41,9 @@ export async function generateMetadata({
 export default async function PostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params; // ✅ unwrap promise
+  const { slug } = params;
   if (!slug) {
     return (
       <main className="max-w-3xl mx-auto px-6 py-12">
@@ -75,10 +75,8 @@ export default async function PostPage({
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
-      {/* Post title */}
       <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
 
-      {/* Meta info */}
       <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
         {post.author && <span>👤 {post.author}</span>}
         {post.categories?.length > 0 && (
@@ -105,7 +103,6 @@ export default async function PostPage({
         )}
       </div>
 
-      {/* Featured image */}
       {post.mainImage && (
         <img
           src={urlFor(post.mainImage).url()}
@@ -114,7 +111,6 @@ export default async function PostPage({
         />
       )}
 
-      {/* Body */}
       <article className="prose dark:prose-invert max-w-none">
         {post.bodyMarkdown ? (
           <ReactMarkdown>{post.bodyMarkdown}</ReactMarkdown>
