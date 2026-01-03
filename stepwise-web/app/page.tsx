@@ -14,13 +14,6 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col font-sans bg-background text-foreground">
-      {/* Header */}
-      <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <span className="text-lg font-semibold">Stepwise Web</span>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="flex-1 mx-auto w-full max-w-6xl px-6 py-12">
         <h1 className="text-3xl font-bold mb-8">Latest Posts</h1>

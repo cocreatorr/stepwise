@@ -49,7 +49,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   }
 
   const categoryTitle =
-    posts[0].categories.find((c: any) => c.slug.current === slug)?.title || "Category";
+    posts[0].categories.find((c: any) => c?.slug?.current === slug)?.title || "Category";
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
@@ -73,27 +73,36 @@ export default async function CategoryPage({ params }: { params: { slug: string 
 
               {/* Meta info */}
               <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 flex flex-wrap gap-2">
-                {post.author && (
+                {post.author?.slug?.current ? (
                   <Link
                     href={`/author/${post.author.slug.current}`}
                     className="hover:underline"
                   >
                     👤 {post.author.name}
                   </Link>
+                ) : (
+                  post.author?.name && <span>👤 {post.author.name}</span>
                 )}
+
                 {post.categories?.length > 0 && (
                   <span>
                     📂{" "}
-                    {post.categories.map((cat: any) =>
-                      cat.slug?.current ? (
+                    {post.categories.map((cat: any, idx: number) =>
+                      cat?.slug?.current ? (
                         <Link
                           key={cat.slug.current}
                           href={`/category/${cat.slug.current}`}
                           className="hover:underline"
                         >
                           {cat.title}
+                          {idx < post.categories.length - 1 && ", "}
                         </Link>
-                      ) : null
+                      ) : (
+                        <span key={idx}>
+                          {cat.title}
+                          {idx < post.categories.length - 1 && ", "}
+                        </span>
+                      )
                     )}
                   </span>
                 )}

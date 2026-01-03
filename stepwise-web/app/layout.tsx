@@ -16,7 +16,7 @@ export default async function RootLayout({
   let categories: any[] = [];
   try {
     categories = await sanityClient.fetch(
-      `*[_type == "category"]{ title, slug } | order(title asc)`
+      `*[_type == "category"]{ _id, title, slug } | order(title asc)`
     );
   } catch (err) {
     console.error("Failed to fetch categories:", err);
@@ -26,34 +26,38 @@ export default async function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className="bg-background text-foreground font-sans antialiased min-h-screen">
         <div className="flex flex-col min-h-screen">
-          {/* Header with nav */}
+          {/* Global Header with navigation */}
           <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm">
             <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+              {/* Brand name */}
               <span className="text-lg font-semibold">Stepwise Web</span>
+
+              {/* Category navigation */}
               <nav className="flex gap-6 text-sm text-zinc-700 dark:text-zinc-300">
                 {Array.isArray(categories) &&
-                  categories.map(
-                    (cat: any) =>
-                      cat.slug?.current && (
-                        <Link
-                          key={cat.slug.current}
-                          href={`/category/${cat.slug.current}`}
-                          className="hover:underline"
-                        >
-                          {cat.title}
-                        </Link>
-                      )
+                  categories.map((cat: any) =>
+                    cat?.slug?.current ? (
+                      <Link
+                        key={cat.slug.current}
+                        href={`/category/${cat.slug.current}`}
+                        className="hover:underline"
+                      >
+                        {cat.title}
+                      </Link>
+                    ) : (
+                      <span key={cat._id}>{cat.title}</span>
+                    )
                   )}
               </nav>
             </div>
           </header>
 
-          {/* Main content */}
+          {/* Page Content */}
           <main className="flex-1 mx-auto w-full max-w-6xl px-6 py-12">
             {children}
           </main>
 
-          {/* Footer */}
+          {/* Global Footer */}
           <footer className="w-full border-t border-zinc-200 dark:border-zinc-800 bg-background">
             <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-zinc-600 dark:text-zinc-400">
               © {new Date().getFullYear()} Stepwise Web. All rights reserved.

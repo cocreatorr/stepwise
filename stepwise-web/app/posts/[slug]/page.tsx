@@ -1,6 +1,8 @@
 import { sanityClient } from "../../../lib/sanity.client";
 import { PortableText } from "@portabletext/react";
+import ReactMarkdown from "react-markdown";
 import { urlFor } from "../../../lib/urlFor";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -19,11 +21,16 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = await params; // ✅ unwrap promise
+  if (!slug) {
+    return { title: "Post", description: "Missing slug" };
+  }
+
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{ title, excerpt }`,
     { slug }
   );
+
   return {
     title: post?.title || "Post",
     description: post?.excerpt || "Stepwise Web post",
@@ -36,17 +43,24 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug } = await params; // ✅ unwrap promise
+  if (!slug) {
+    return (
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        <h2>Invalid slug</h2>
+      </main>
+    );
+  }
+
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
       title,
       excerpt,
       mainImage,
       body,
+      bodyMarkdown,
       "author": author->name,
-      categories[]->{
-        title
-      }
+      categories[]->{ title, slug }
     }`,
     { slug }
   );
@@ -69,7 +83,24 @@ export default async function PostPage({
         {post.author && <span>👤 {post.author}</span>}
         {post.categories?.length > 0 && (
           <span>
-            📂 {post.categories.map((cat: any) => cat.title).join(", ")}
+            📂{" "}
+            {post.categories.map((cat: any, idx: number) =>
+              cat?.slug?.current ? (
+                <Link
+                  key={cat.slug.current}
+                  href={`/category/${cat.slug.current}`}
+                  className="hover:underline"
+                >
+                  {cat.title}
+                  {idx < post.categories.length - 1 && ", "}
+                </Link>
+              ) : (
+                <span key={idx}>
+                  {cat.title}
+                  {idx < post.categories.length - 1 && ", "}
+                </span>
+              )
+            )}
           </span>
         )}
       </div>
@@ -78,14 +109,20 @@ export default async function PostPage({
       {post.mainImage && (
         <img
           src={urlFor(post.mainImage).url()}
-          alt={post.title}
+          alt={post.title || "Post image"}
           className="w-full h-auto rounded-lg mb-6 shadow-md"
         />
       )}
 
       {/* Body */}
       <article className="prose dark:prose-invert max-w-none">
-        <PortableText value={post.body} />
+        {post.bodyMarkdown ? (
+          <ReactMarkdown>{post.bodyMarkdown}</ReactMarkdown>
+        ) : post.body ? (
+          <PortableText value={post.body} />
+        ) : (
+          <p>No content available.</p>
+        )}
       </article>
     </main>
   );
