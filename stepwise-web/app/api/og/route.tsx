@@ -1,10 +1,8 @@
 import { ImageResponse } from '@vercel/og';
 
-export const config = {
-  runtime: 'edge',
-};
+export const runtime = 'edge'; // replaces the old config export
 
-export default async function handler(req: Request) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const title = searchParams.get('title') || 'Stepwise Studio';
 
