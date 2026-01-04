@@ -10,15 +10,15 @@ export default async function HomePage() {
       slug,
       excerpt,
       mainImage,
-      "author": author->{ name },
+      "author": author->{ name, slug },
       categories[]->{ title, slug }
     }`
   );
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-12">
-      {/* Hero / Heading */}
-      <div className="mb-10">
+      {/* Hero Section */}
+      <div className="mb-10 text-center">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
           Stepwise Web
         </h1>

@@ -6,6 +6,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Stepwise Web",
   description: "Next.js + TailwindCSS project",
+  metadataBase: new URL("https://stepwise-web.vercel.app"), // replace with your deployed domain
 };
 
 export default async function RootLayout({
@@ -15,12 +16,19 @@ export default async function RootLayout({
 }) {
   let categories: any[] = [];
   try {
-    // ✅ Use GROQ unique() to avoid duplicates
+    // ✅ Removed unsupported unique(), just order categories
     categories = await sanityClient.fetch(
-      `*[_type == "category"]{ _id, title, slug } 
-       | order(title asc) 
-       | unique(slug.current)`
+      `*[_type == "category"]{ _id, title, slug } | order(title asc)`
     );
+
+    // ✅ Deduplicate categories in JS
+    const seen = new Set();
+    categories = categories.filter((cat: any) => {
+      if (!cat?.slug?.current) return false;
+      if (seen.has(cat.slug.current)) return false;
+      seen.add(cat.slug.current);
+      return true;
+    });
   } catch (err) {
     console.error("Failed to fetch categories:", err);
   }
@@ -29,13 +37,15 @@ export default async function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className="bg-background text-foreground font-sans antialiased min-h-screen">
         <div className="flex flex-col min-h-screen">
-          {/* Global Header with navigation */}
+          {/* Global Header */}
           <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm">
             <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-              {/* Brand name */}
-              <span className="text-lg font-semibold">Stepwise Web</span>
+              {/* Home Button */}
+              <Link href="/" className="text-lg font-semibold hover:underline">
+                Home
+              </Link>
 
-              {/* Category navigation */}
+              {/* Category Navigation */}
               <nav className="flex gap-6 text-sm text-zinc-700 dark:text-zinc-300">
                 {Array.isArray(categories) &&
                   categories.map((cat: any) =>
