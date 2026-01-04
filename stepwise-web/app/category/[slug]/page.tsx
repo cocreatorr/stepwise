@@ -3,10 +3,20 @@ import PostCard from "../../../components/PostCard";
 
 export const revalidate = 60;
 
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const category = await sanityClient.fetch(
+    `*[_type == "category" && slug.current == $slug][0]{ title, description }`,
+    { slug: params.slug }
+  );
+  return {
+    title: category?.title || "Category",
+    description: category?.description || "Posts grouped by category",
+  };
+}
+
 export default async function CategoryPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
-  // Fetch category info + posts
   const data = await sanityClient.fetch(
     `{
       "category": *[_type == "category" && slug.current == $slug][0]{ title, description },
@@ -26,7 +36,6 @@ export default async function CategoryPage({ params }: { params: { slug: string 
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-12">
-      {/* Category Header */}
       <div className="mb-10 text-center">
         <h1 className="text-3xl font-bold">{category?.title}</h1>
         {category?.description && (
@@ -34,15 +43,18 @@ export default async function CategoryPage({ params }: { params: { slug: string 
         )}
       </div>
 
-      {/* Category Posts */}
       <h2 className="text-2xl font-semibold mb-6">
         Posts in {category?.title}
       </h2>
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post: any) => (
-          <PostCard key={post.slug.current} post={post} />
-        ))}
-      </ul>
+      {posts.length > 0 ? (
+        <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post: any) => (
+            <PostCard key={post.slug.current} post={post} />
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-500">No posts found in this category.</p>
+      )}
     </section>
   );
 }
