@@ -1,47 +1,39 @@
 import { sanityClient } from "../lib/sanity.client";
+import PostCard from "../components/PostCard";
 
-export const revalidate = 60; // ISR: revalidate every 60 seconds
+export const revalidate = 60;
 
 export default async function HomePage() {
-  const query = `*[_type == "post"]{
-    title,
-    slug,
-    excerpt,
-    mainImage
-  } | order(publishedAt desc)`;
-
-  const posts = await sanityClient.fetch(query);
+  const posts = await sanityClient.fetch(
+    `*[_type == "post"] | order(publishedAt desc) {
+      title,
+      slug,
+      excerpt,
+      mainImage,
+      "author": author->{ name },
+      categories[]->{ title, slug }
+    }`
+  );
 
   return (
-    <div className="flex min-h-screen flex-col font-sans bg-background text-foreground">
-      {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-6xl px-6 py-12">
-        <h1 className="text-3xl font-bold mb-8">Latest Posts</h1>
-        <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post: any) => (
-            <li
-              key={post.slug.current}
-              className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 hover:shadow-md transition"
-            >
-              <a href={`/posts/${post.slug.current}`} className="block">
-                <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-                {post.excerpt && (
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {post.excerpt}
-                  </p>
-                )}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </main>
+    <section className="max-w-6xl mx-auto px-6 py-12">
+      {/* Hero / Heading */}
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Stepwise Web
+        </h1>
+        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+          Developer insights, one clean commit at a time.
+        </p>
+      </div>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-zinc-200 dark:border-zinc-800 bg-background">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-zinc-600 dark:text-zinc-400">
-          © {new Date().getFullYear()} Stepwise Web. All rights reserved.
-        </div>
-      </footer>
-    </div>
+      {/* Latest Posts */}
+      <h2 className="text-2xl font-semibold mb-6">Latest Posts</h2>
+      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post: any) => (
+          <PostCard key={post.slug.current} post={post} />
+        ))}
+      </ul>
+    </section>
   );
 }

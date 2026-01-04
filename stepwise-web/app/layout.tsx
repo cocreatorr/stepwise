@@ -15,8 +15,11 @@ export default async function RootLayout({
 }) {
   let categories: any[] = [];
   try {
+    // ✅ Use GROQ unique() to avoid duplicates
     categories = await sanityClient.fetch(
-      `*[_type == "category"]{ _id, title, slug } | order(title asc)`
+      `*[_type == "category"]{ _id, title, slug } 
+       | order(title asc) 
+       | unique(slug.current)`
     );
   } catch (err) {
     console.error("Failed to fetch categories:", err);

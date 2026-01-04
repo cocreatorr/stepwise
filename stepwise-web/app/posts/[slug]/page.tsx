@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const revalidate = 60;
 
-// Pre-generate static params
+// Pre-generate static params for all slugs
 export async function generateStaticParams() {
   const slugs: string[] = await sanityClient.fetch(
     `*[_type == "post" && defined(slug.current)][].slug.current`
@@ -15,17 +15,13 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-// Metadata
+// Metadata for SEO/OG
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = params;
-  if (!slug) {
-    return { title: "Post", description: "Missing slug" };
-  }
-
+  const { slug } = await params; // ✅ unwrap params
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{ title, excerpt }`,
     { slug }
@@ -34,6 +30,23 @@ export async function generateMetadata({
   return {
     title: post?.title || "Post",
     description: post?.excerpt || "Stepwise Web post",
+    openGraph: {
+      title: post?.title || "Post",
+      description: post?.excerpt || "Stepwise Web post",
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(post?.title || "Stepwise Web")}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post?.title || "Post",
+      description: post?.excerpt || "Stepwise Web post",
+      images: [`/api/og?title=${encodeURIComponent(post?.title || "Stepwise Web")}`],
+    },
   };
 }
 
@@ -41,16 +54,9 @@ export async function generateMetadata({
 export default async function PostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
-  if (!slug) {
-    return (
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <h2>Invalid slug</h2>
-      </main>
-    );
-  }
+  const { slug } = await params; // ✅ unwrap params
 
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -60,26 +66,22 @@ export default async function PostPage({
       body,
       bodyMarkdown,
       "author": author->name,
-      categories[]->{ title, slug }
+      categories[]->{ title, slug },
+      publishedAt
     }`,
     { slug }
   );
 
-  if (!post) {
-    return (
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <h2>Post not found</h2>
-      </main>
-    );
-  }
-
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-2">{post.title}</h1>
+      <h1 className="text-4xl font-bold mb-2">{post?.title || "Untitled Post"}</h1>
 
       <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-        {post.author && <span>👤 {post.author}</span>}
-        {post.categories?.length > 0 && (
+        {post?.author && <span>👤 {post.author}</span>}
+        {post?.publishedAt && (
+          <span>📅 {new Date(post.publishedAt).toLocaleDateString()}</span>
+        )}
+        {post?.categories?.length > 0 && (
           <span>
             📂{" "}
             {post.categories.map((cat: any, idx: number) =>
@@ -103,18 +105,18 @@ export default async function PostPage({
         )}
       </div>
 
-      {post.mainImage && (
+      {post?.mainImage && (
         <img
-          src={urlFor(post.mainImage).url()}
-          alt={post.title || "Post image"}
+          src={urlFor(post.mainImage).width(800).url()}
+          alt={post?.title || "Post image"}
           className="w-full h-auto rounded-lg mb-6 shadow-md"
         />
       )}
 
       <article className="prose dark:prose-invert max-w-none">
-        {post.bodyMarkdown ? (
+        {post?.bodyMarkdown ? (
           <ReactMarkdown>{post.bodyMarkdown}</ReactMarkdown>
-        ) : post.body ? (
+        ) : post?.body ? (
           <PortableText value={post.body} />
         ) : (
           <p>No content available.</p>
