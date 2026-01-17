@@ -58,3 +58,6 @@ stepwise-web/.env      # explicitly ignore Web env
 # =========================
 .vscode/
 .idea/
+.turbo/
+.jest/
+.playwright/

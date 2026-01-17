@@ -4,7 +4,6 @@ import Link from "next/link";
 export const metadata = {
   title: "Stepwise Web",
   description: "Developer insights, one clean commit at a time.",
-  metadataBase: new URL("https://your-production-domain.com"), // replace with your real domain
 };
 
 export default function RootLayout({
@@ -14,33 +13,38 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-white">
-        {/* Header */}
-        <header className="border-b border-gray-200 dark:border-zinc-800">
+      <body className="bg-background text-text">
+        {/* Navigation */}
+        <header className="border-b border-border bg-background">
           <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link href="/" className="text-xl font-bold hover:underline">
+            <Link href="/" className="text-2xl font-bold text-heading">
               Stepwise Web
             </Link>
-            <div className="flex space-x-6 text-lg font-medium">
-              <Link href="/category" className="hover:underline">
+            <div className="flex gap-6 font-medium">
+              <Link href="/posts" className="text-link hover:text-linkHover">
+                Posts
+              </Link>
+              <Link href="/category" className="text-link hover:text-linkHover">
                 Categories
               </Link>
-              <Link href="/tag" className="hover:underline">
+              <Link href="/tag" className="text-link hover:text-linkHover">
                 Tags
               </Link>
-              <Link href="/about" className="hover:underline">
+              <Link href="/about" className="text-link hover:text-linkHover">
                 About
               </Link>
             </div>
           </nav>
         </header>
 
-        {/* Content */}
-        <main className="max-w-6xl mx-auto px-6 py-12">{children}</main>
+        {/* Main content */}
+        <main className="min-h-screen">{children}</main>
 
         {/* Footer */}
-        <footer className="border-t border-gray-200 dark:border-zinc-800 mt-12 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()} Stepwise Web. All rights reserved.
+        <footer className="border-t border-border bg-background">
+          <div className="max-w-6xl mx-auto px-6 py-6 text-center text-subtle text-sm">
+            © {new Date().getFullYear()} Stepwise Web · Built with Next.js & Sanity
+          </div>
         </footer>
       </body>
     </html>

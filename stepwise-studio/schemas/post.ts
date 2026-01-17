@@ -9,6 +9,7 @@ export default defineType({
       name: "title",
       title: "Title",
       type: "string",
+      validation: (Rule) => Rule.required().min(10).max(120),
     }),
     defineField({
       name: "slug",
@@ -18,12 +19,14 @@ export default defineType({
         source: "title",
         maxLength: 96,
       },
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "excerpt",
       title: "Excerpt",
       type: "text",
       rows: 3,
+      validation: (Rule) => Rule.max(160),
     }),
     defineField({
       name: "body",
@@ -31,7 +34,6 @@ export default defineType({
       type: "array",
       of: [{ type: "block" }],
     }),
-    // ✅ Markdown field placed right below body
     defineField({
       name: "bodyMarkdown",
       title: "Body (Markdown)",
@@ -47,6 +49,7 @@ export default defineType({
       title: "Author",
       type: "reference",
       to: [{ type: "author" }],
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "categories",
@@ -59,6 +62,36 @@ export default defineType({
       title: "Main Image",
       type: "image",
       options: { hotspot: true },
+    }),
+
+    // ✅ Professional SEO fields
+    defineField({
+      name: "seoTitle",
+      title: "SEO Title",
+      type: "string",
+      description: "Custom title for search engines and social sharing",
+      validation: (Rule) => Rule.max(60),
+    }),
+    defineField({
+      name: "seoDescription",
+      title: "SEO Description",
+      type: "text",
+      rows: 2,
+      description: "Meta description for search engines (max ~160 chars)",
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: "openGraphImage",
+      title: "Open Graph Image",
+      type: "image",
+      options: { hotspot: true },
+      description: "Image used for social sharing previews",
+    }),
+    defineField({
+      name: "readingTime",
+      title: "Estimated Reading Time",
+      type: "number",
+      description: "Minutes to read (auto-compute or manual entry)",
     }),
   ],
 });

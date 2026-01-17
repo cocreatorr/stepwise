@@ -14,10 +14,10 @@ export default async function CategoryIndexPage() {
   );
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12">
+    <section className="max-w-6xl mx-auto px-6 py-12 bg-white text-black">
       <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold">Categories</h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+        <h1 className="text-4xl font-bold text-blue-900">Categories</h1>
+        <p className="mt-2 text-lg text-blue-700">
           Browse posts grouped by category
         </p>
       </div>
@@ -26,18 +26,18 @@ export default async function CategoryIndexPage() {
         {categories.map((cat: any) => (
           <li
             key={cat._id}
-            className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 dark:border-zinc-700 p-6"
+            className="bg-white rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 p-6"
           >
             <Link
               href={`/category/${cat.slug.current}`}
               className="block hover:underline"
             >
-              <h2 className="text-xl font-semibold mb-2">{cat.title}</h2>
+              <h2 className="text-xl font-semibold mb-2 text-blue-900">
+                {cat.title}
+              </h2>
             </Link>
             {cat.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {cat.description}
-              </p>
+              <p className="text-sm text-blue-700">{cat.description}</p>
             )}
           </li>
         ))}
