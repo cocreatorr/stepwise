@@ -2,7 +2,7 @@
   "name": "stepwise",
   "private": true,
   "version": "1.0.0",
-  "type": "module",               // ✅ Added: ensures Node treats files as ES modules
+  "type": "module",               
   "main": "package.json",
   "license": "UNLICENSED",
   "scripts": {
