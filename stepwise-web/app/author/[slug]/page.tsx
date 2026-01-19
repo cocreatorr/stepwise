@@ -1,53 +1,67 @@
 import { sanityClient } from "../../../lib/sanity.client";
-import PostCard from "../../../components/PostCard";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export const revalidate = 60;
 
-export default async function AuthorPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export async function generateStaticParams() {
+  const slugs: string[] = await sanityClient.fetch(
+    `*[_type == "author" && defined(slug.current)][].slug.current`
+  );
+  return slugs.map((slug) => ({ slug }));
+}
 
-  // Fetch author info + posts
-  const data = await sanityClient.fetch(
-    `{
-      "author": *[_type == "author" && slug.current == $slug][0]{ name, bio, image },
-      "posts": *[_type == "post" && author->slug.current == $slug] | order(publishedAt desc) {
+export default async function AuthorPage(
+  props: { params: Promise<{ slug: string }> }
+) {
+  // ✅ Await the params in Next.js 16
+  const { slug } = await props.params;
+
+  const author = await sanityClient.fetch(
+    `*[_type == "author" && slug.current == $slug][0]{
+      name,
+      bio,
+      "posts": *[_type == "post" && author._ref == ^._id]{
         title,
-        slug,
         excerpt,
-        mainImage,
-        "author": author->{ name, slug },
-        categories[]->{ title, slug }
+        "slug": slug.current,
+        "categories": categories[]->{ title, "slug": slug.current }
       }
     }`,
     { slug }
   );
 
-  const { author, posts } = data;
+  if (!author) notFound();
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12">
-      {/* Author Header */}
-      <div className="mb-10 text-center">
-        {author?.image && (
-          <img
-            src={author.image.asset.url}
-            alt={author.name}
-            className="mx-auto h-24 w-24 rounded-full object-cover mb-4"
-          />
-        )}
-        <h1 className="text-3xl font-bold">{author?.name}</h1>
-        {author?.bio && (
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{author.bio}</p>
-        )}
-      </div>
+    <main className="max-w-4xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-4">👤 {author.name}</h1>
+      {author.bio && <p className="text-gray-600 mb-8">{author.bio}</p>}
 
-      {/* Author Posts */}
-      <h2 className="text-2xl font-semibold mb-6">Posts by {author?.name}</h2>
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post: any) => (
-          <PostCard key={post.slug.current} post={post} />
+      <h2 className="text-2xl font-semibold mb-4">Posts by {author.name}</h2>
+      <ul className="space-y-6">
+        {author.posts.map((post: any) => (
+          <li key={post.slug}>
+            <Link href={`/posts/${post.slug}`}>
+              <h3 className="text-xl font-semibold text-blue-900 hover:underline">
+                {post.title}
+              </h3>
+            </Link>
+            <p className="text-gray-600">{post.excerpt}</p>
+            <div className="text-sm text-blue-700 space-x-2">
+              {post.categories?.map((cat: any) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className="hover:underline"
+                >
+                  📁 {cat.title}
+                </Link>
+              ))}
+            </div>
+          </li>
         ))}
       </ul>
-    </section>
+    </main>
   );
 }

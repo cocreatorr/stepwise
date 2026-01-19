@@ -1,5 +1,5 @@
 import { sanityClient } from "../lib/sanity.client";
-import PostCard from "../components/PostCard";
+import Link from "next/link";
 
 export const revalidate = 60;
 
@@ -9,31 +9,54 @@ export default async function HomePage() {
       title,
       slug,
       excerpt,
-      mainImage,
-      "author": author->{ name, slug },
-      categories[]->{ title, slug }
+      "author": author->{ name, "slug": slug.current },
+      "categories": categories[]->{ title, "slug": slug.current }
     }`
   );
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12">
-      {/* Hero Section */}
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Stepwise Web
-        </h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-          Developer insights, one clean commit at a time.
-        </p>
-      </div>
+    <main className="max-w-6xl mx-auto px-6 py-12">
+      {/* Header */}
+      <header className="flex justify-between items-center mb-12">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Stepwise Web</h1>
+        
+      </header>
+
+      {/* Tagline */}
+      <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">
+        Developer insights, one clean commit at a time.
+      </p>
 
       {/* Latest Posts */}
-      <h2 className="text-2xl font-semibold mb-6">Latest Posts</h2>
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post: any) => (
-          <PostCard key={post.slug.current} post={post} />
-        ))}
-      </ul>
-    </section>
+      <section>
+        <h2 className="text-2xl font-semibold mb-6">Latest Posts</h2>
+        <ul className="space-y-8">
+          {posts.map((post: any) => (
+            <li key={post.slug.current}>
+              <Link href={`/posts/${post.slug.current}`}>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 underline">
+                  {post.title}
+                </h3>
+              </Link>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">{post.excerpt}</p>
+              <div className="mt-2 text-sm text-blue-700 dark:text-blue-400 space-x-4">
+                {post.author && (
+                  <Link href={`/author/${post.author.slug}`} className="hover:underline">
+                    👤 {post.author.name}
+                  </Link>
+                )}
+                {post.categories?.map((cat: any) => (
+                  <Link key={cat.slug} href={`/category/${cat.slug}`} className="hover:underline">
+                    📁 {cat.title}
+                  </Link>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      
+    </main>
   );
 }

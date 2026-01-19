@@ -1,34 +1,34 @@
-import { defineType } from 'sanity'
+import { defineType, defineField } from "sanity";
 
 export default defineType({
-  name: 'author',
-  title: 'Author',
-  type: 'document',
+  name: "author",
+  title: "Author",
+  type: "document",
   fields: [
-    {
-      name: 'name',
-      title: 'Name',
-      type: 'string',
-    },
-    {
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: { source: 'name', maxLength: 96 },
-    },
-    {
-      name: 'bio',
-      title: 'Bio',
-      type: 'text',
-    },
-    {
-      name: 'image',
-      title: 'Profile Image',
-      type: 'image',
-      options: {
-        hotspot: true, // allows cropping and focus point
-      },
-    },
+    defineField({
+      name: "name",
+      title: "Name",
+      type: "string",
+      validation: (Rule) => Rule.required().min(2).max(50),
+    }),
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "name", maxLength: 96 },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "bio",
+      title: "Bio",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
+      name: "image",
+      title: "Profile Image",
+      type: "image",
+      options: { hotspot: true },
+    }),
   ],
-})
-
+});

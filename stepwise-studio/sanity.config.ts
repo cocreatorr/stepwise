@@ -2,9 +2,9 @@ import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { visionTool } from '@sanity/vision'
 import { markdownSchema } from 'sanity-plugin-markdown'
-import post from './schemas/post'
-import category from './schemas/category'
-import author from './schemas/author'
+
+// ✅ Import all schemas from schemas/index.ts
+import { schemaTypes } from './schemas'
 
 export default defineConfig({
   name: 'default',
@@ -12,7 +12,7 @@ export default defineConfig({
 
   projectId: 'mejutefa',
   dataset: 'production',
-  apiVersion: '2022-06-01',   // 👈 pin API version here
+  apiVersion: '2022-06-01', // pin API version
 
   plugins: [
     deskTool(),
@@ -21,6 +21,6 @@ export default defineConfig({
   ],
 
   schema: {
-    types: [post, category, author],
+    types: schemaTypes, // ✅ includes post, author, category, settings, blockContent
   },
 })

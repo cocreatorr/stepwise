@@ -23,7 +23,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params; // ✅ await the promise
+  const { slug } = await params;
 
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -33,8 +33,8 @@ export async function generateMetadata({
       seoDescription,
       openGraphImage,
       publishedAt,
-      "author": author->name,
-      categories[]->{ title, slug }
+      "author": author->{ name, "slug": slug.current },
+      "categories": categories[]->{ title, "slug": slug.current }
     }`,
     { slug }
   );
@@ -61,7 +61,7 @@ export async function generateMetadata({
       title,
       description,
       publishedTime: post.publishedAt,
-      authors: post.author ? [post.author] : [],
+      authors: post.author ? [post.author.name] : [],
       tags: post.categories?.map((c: any) => c.title),
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : [],
     },
@@ -80,7 +80,7 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params; // ✅ await the promise
+  const { slug } = await params;
 
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -89,8 +89,8 @@ export default async function PostPage({
       body,
       bodyMarkdown,
       mainImage,
-      "author": author->name,
-      categories[]->{ title, slug },
+      "author": author->{ name, "slug": slug.current },
+      "categories": categories[]->{ title, "slug": slug.current },
       publishedAt,
       readingTime
     }`,
@@ -106,7 +106,11 @@ export default async function PostPage({
       <h1 className="text-4xl font-bold mb-2 text-blue-900">{post.title}</h1>
 
       <div className="flex items-center gap-4 text-sm text-blue-700 mb-6">
-        {post.author && <span>👤 {post.author}</span>}
+        {post.author && (
+          <Link href={`/author/${post.author.slug}`} className="hover:underline">
+            👤 {post.author.name}
+          </Link>
+        )}
         {post.publishedAt && (
           <span>📅 {new Date(post.publishedAt).toLocaleDateString()}</span>
         )}
@@ -115,10 +119,10 @@ export default async function PostPage({
           <span>
             📂{" "}
             {post.categories.map((cat: any, idx: number) =>
-              cat?.slug?.current ? (
+              cat?.slug ? (
                 <Link
-                  key={cat.slug.current}
-                  href={`/category/${cat.slug.current}`}
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
                   className="hover:underline text-blue-700"
                 >
                   {cat.title}
@@ -158,3 +162,4 @@ export default async function PostPage({
     </main>
   );
 }
+

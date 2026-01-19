@@ -1,75 +1,76 @@
 import { sanityClient } from "../../../lib/sanity.client";
-import PostCard from "../../../components/PostCard";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 
 export const revalidate = 60;
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-
-  const tag = await sanityClient.fetch(
-    `*[_type == "tag" && slug.current == $slug][0]{ title, description }`,
-    { slug }
+export async function generateStaticParams() {
+  const slugs: string[] = await sanityClient.fetch(
+    `*[_type == "tag" && defined(slug.current)][].slug.current`
   );
-
-  return {
-    title: tag?.title || "Tag",
-    description: tag?.description || "Posts grouped by tag",
-  };
+  return slugs.map((slug) => ({ slug }));
 }
 
-export default async function TagPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default async function TagPage(
+  props: { params: Promise<{ slug: string }> }
+) {
+  // ✅ Await the params in Next.js 16
+  const { slug } = await props.params;
 
-  const data = await sanityClient.fetch(
-    `{
-      "tag": *[_type == "tag" && slug.current == $slug][0]{ title, description },
-      "posts": *[_type == "post" && $slug in tags[]->slug.current] | order(publishedAt desc) {
+  const tag = await sanityClient.fetch(
+    `*[_type == "tag" && slug.current == $slug][0]{
+      title,
+      description,
+      "posts": *[_type == "post" && references(^._id)]{
         title,
-        slug,
         excerpt,
-        mainImage,
-        "author": author->{ name, slug },
-        categories[]->{ title, slug }
+        "slug": slug.current,
+        "author": author->{ name, "slug": slug.current },
+        "categories": categories[]->{ title, "slug": slug.current }
       }
     }`,
     { slug }
   );
 
-  const { tag, posts } = data;
-
   if (!tag) notFound();
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12 bg-background text-text">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold text-heading">{tag?.title ?? "Tag"}</h1>
-        {tag?.description && (
-          <p className="mt-2 text-link">{tag.description}</p>
-        )}
-      </div>
+    <main className="max-w-4xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-4">🏷️ {tag.title}</h1>
+      {tag.description && <p className="text-gray-600 mb-8">{tag.description}</p>}
 
-      <h2 className="text-2xl font-semibold mb-6 text-heading">
-        Posts tagged with {tag?.title ?? slug}
-      </h2>
-      {posts?.length > 0 ? (
-        <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post: any) => (
-            <PostCard key={post.slug.current} post={post} />
-          ))}
-        </ul>
-      ) : (
-        <p className="text-center text-subtle">No posts found for this tag.</p>
-      )}
-    </section>
+      <h2 className="text-2xl font-semibold mb-4">Posts tagged {tag.title}</h2>
+      <ul className="space-y-6">
+        {tag.posts.map((post: any) => (
+          <li key={post.slug}>
+            <Link href={`/posts/${post.slug}`}>
+              <h3 className="text-xl font-semibold text-blue-900 hover:underline">
+                {post.title}
+              </h3>
+            </Link>
+            <p className="text-gray-600">{post.excerpt}</p>
+            <div className="text-sm text-blue-700 space-x-2">
+              {post.categories?.map((cat: any) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className="hover:underline"
+                >
+                  📁 {cat.title}
+                </Link>
+              ))}
+              {post.author && (
+                <Link
+                  href={`/author/${post.author.slug}`}
+                  className="hover:underline"
+                >
+                  👤 {post.author.name}
+                </Link>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }

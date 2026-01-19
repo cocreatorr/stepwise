@@ -1,47 +1,31 @@
+import Card from "../../components/Card";
 import { sanityClient } from "../../lib/sanity.client";
 import Link from "next/link";
 
 export const revalidate = 60;
 
 export default async function TagIndexPage() {
+  // Query all tags from Sanity
   const tags = await sanityClient.fetch(
-    `*[_type == "tag" && defined(slug.current)] | order(title asc) {
-      _id,
+    `*[_type == "tag"] | order(title asc) {
       title,
-      slug,
+      "slug": slug.current,
       description
     }`
   );
 
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12 bg-white text-black">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-blue-900">Tags</h1>
-        <p className="mt-2 text-lg text-blue-700">
-          Browse posts grouped by tag
-        </p>
-      </div>
-
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <main className="max-w-4xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-8">Tags</h1>
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {tags.map((tag: any) => (
-          <li
-            key={tag._id}
-            className="bg-white rounded-lg shadow-sm hover:shadow-md transition border border-gray-200 p-6"
-          >
-            <Link
-              href={`/tag/${tag.slug.current}`}
-              className="block hover:underline"
-            >
-              <h2 className="text-xl font-semibold mb-2 text-blue-900">
-                {tag.title}
-              </h2>
+          <li key={tag.slug}>
+            <Link href={`/tag/${tag.slug}`}>
+              <Card title={tag.title} description={tag.description} />
             </Link>
-            {tag.description && (
-              <p className="text-sm text-blue-700">{tag.description}</p>
-            )}
           </li>
         ))}
       </ul>
-    </section>
+    </main>
   );
 }
