@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22.12.0
 
       # 3. Install dependencies (local CLI included)
       - name: Install dependencies
@@ -30,5 +30,6 @@ jobs:
       # 4. Deploy Sanity Studio using local CLI
       - name: Deploy Sanity Studio
         run: npx sanity deploy
+        working-directory: stepwise-studio
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
