@@ -1,3 +1,4 @@
+# filepath: .github/workflows/ci.yml
 name: CI Pipeline
 
 on:
@@ -18,13 +19,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20   # Sanity CLI requires Node 20+
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: stepwise-studio/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Sanity schema validation
-        run: npx sanity schema check
+      - name: Schema check
+        run: npm run schema:check
+
+      - name: Studio build (validates schemas)
+        run: npm run build
 
   build-web:
     runs-on: ubuntu-latest
@@ -39,9 +45,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: stepwise-web/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Next.js app
+        env:
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+          SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION || '2024-01-01' }}
         run: npm run build
