@@ -56,4 +56,5 @@ jobs:
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
           SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION || '2024-01-01' }}
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
         run: npm run build
