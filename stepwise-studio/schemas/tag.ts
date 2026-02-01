@@ -1,13 +1,13 @@
 export default {
-  name: 'category',
-  title: 'Category',
+  name: 'tag',
+  title: 'Tag',
   type: 'document',
   fields: [
     {
       name: 'title',
       title: 'Title',
       type: 'string',
-      description: 'The human-readable name of the category (e.g. "Programming").',
+      description: 'The human-readable name of the tag (e.g. "Blog").',
       validation: (Rule) => Rule.required(),
     },
     {
@@ -27,14 +27,14 @@ export default {
       title: 'Description',
       type: 'text',
       description:
-        'Optional: a short description of what this category represents. Appears on the category page.',
+        'Optional: a short description of what this tag represents. Appears on the tag page.',
     },
     {
       name: 'openGraphImage',
       title: 'Open Graph Image',
       type: 'image',
       description:
-        'Optional: social share image specific to this category. Falls back to site default if not set.',
+        'Optional: social share image specific to this tag. Falls back to site default if not set.',
       options: { hotspot: true },
     },
   ],

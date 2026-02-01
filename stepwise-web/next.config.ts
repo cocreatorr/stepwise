@@ -3,7 +3,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // remove swcMinify, it's default now
+  images: {
+    // ✅ Use remotePatterns instead of deprecated domains
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

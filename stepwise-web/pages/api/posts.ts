@@ -3,20 +3,46 @@ import { sanityServerClient } from "../../lib/sanity.server";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const query = `*[_type == "post"]{
+    // Query for posts
+    const postsQuery = `*[_type == "post"]{
       _id,
       title,
       slug,
       excerpt,
+      publishedAt,
       "author": author->{ name, slug },
       categories[]->{ title, slug }
     } | order(publishedAt desc)`;
 
-    const posts = await sanityServerClient.fetch(query);
+    // Query for site settings (tags for navigation)
+    const settingsQuery = `*[_type == "settings"][0]{
+      siteTitle,
+      logo,
+      favicon,
+      tags[]{
+        label,
+        slug,
+        order
+      }
+    }`;
 
-    res.status(200).json(posts);
+    // Fetch both in parallel
+    const [posts, settings] = await Promise.all([
+      sanityServerClient.fetch(postsQuery),
+      sanityServerClient.fetch(settingsQuery),
+    ]);
+
+    // Return combined response
+    res.status(200).json({
+      posts,
+      siteTitle: settings?.siteTitle || null,
+      logo: settings?.logo || null,
+      favicon: settings?.favicon || null,
+      tags: settings?.tags || [],
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error fetching posts" });
+    res.status(500).json({ message: "Error fetching posts and settings" });
   }
 }
+

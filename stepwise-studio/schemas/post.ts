@@ -1,96 +1,103 @@
-import { defineType, defineField } from "sanity";
-
-export default defineType({
-  name: "post",
-  title: "Post",
-  type: "document",
+export default {
+  name: 'post',
+  title: 'Post',
+  type: 'document',
   fields: [
-    defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
-      validation: (Rule) => Rule.required().min(10).max(120),
-    }),
-    defineField({
-      name: "slug",
-      title: "Slug",
-      type: "slug",
+    {
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      description: 'Headline of the post.',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
       options: {
-        source: "title",
+        source: 'title', // ✅ auto-generate slug from title
         maxLength: 96,
       },
+      description: 'URL-friendly identifier (click "Generate" after entering a title).',
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: "excerpt",
-      title: "Excerpt",
-      type: "text",
-      rows: 3,
-      validation: (Rule) => Rule.max(160),
-    }),
-    defineField({
-      name: "body",
-      title: "Body",
-      type: "blockContent",
-    }),
-    defineField({
-      name: "bodyMarkdown",
-      title: "Body (Markdown)",
-      type: "markdown", // requires sanity-plugin-markdown
-    }),
-    defineField({
-      name: "publishedAt",
-      title: "Published At",
-      type: "datetime",
-    }),
-    defineField({
-      name: "author",
-      title: "Author",
-      type: "reference",
-      to: [{ type: "author" }],
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: "categories",
-      title: "Categories",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "category" }] }],
-    }),
-    defineField({
-      name: "mainImage",
-      title: "Main Image",
-      type: "image",
+    },
+    {
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'text',
+      description: 'Short summary shown in listings and previews.',
+    },
+    {
+      name: 'body',
+      title: 'Body',
+      type: 'array',
+      of: [{ type: 'block' }],
+      description: 'Main content of the post (rich text).',
+    },
+    {
+      name: 'bodyMarkdown',
+      title: 'Body (Markdown)',
+      type: 'text',
+      description: 'Optional: Markdown version of the post body.',
+    },
+    {
+      name: 'mainImage',
+      title: 'Main Image',
+      type: 'image',
       options: { hotspot: true },
-    }),
-
-    // ✅ Professional SEO fields
-    defineField({
-      name: "seoTitle",
-      title: "SEO Title",
-      type: "string",
-      description: "Custom title for search engines and social sharing",
-      validation: (Rule) => Rule.max(60),
-    }),
-    defineField({
-      name: "seoDescription",
-      title: "SEO Description",
-      type: "text",
-      rows: 2,
-      description: "Meta description for search engines (max ~160 chars)",
-      validation: (Rule) => Rule.max(160),
-    }),
-    defineField({
-      name: "openGraphImage",
-      title: "Open Graph Image",
-      type: "image",
+      description: 'Featured image for the post.',
+    },
+    {
+      name: 'author',
+      title: 'Author',
+      type: 'reference',
+      to: [{ type: 'author' }],
+      description: 'Reference to the author document.',
+    },
+    {
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'category' }] }],
+      description: 'Categories this post belongs to.',
+    },
+    {
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      description: 'Tags associated with this post.',
+    },
+    {
+      name: 'publishedAt',
+      title: 'Published At',
+      type: 'datetime',
+      description: 'Publication date of the post.',
+    },
+    {
+      name: 'readingTime',
+      title: 'Reading Time',
+      type: 'number',
+      description: 'Estimated reading time in minutes.',
+    },
+    {
+      name: 'seoTitle',
+      title: 'SEO Title',
+      type: 'string',
+      description: 'Custom title for SEO (optional).',
+    },
+    {
+      name: 'seoDescription',
+      title: 'SEO Description',
+      type: 'text',
+      description: 'Custom description for SEO (optional).',
+    },
+    {
+      name: 'openGraphImage',
+      title: 'Open Graph Image',
+      type: 'image',
+      description: 'Optional: social share image specific to this post.',
       options: { hotspot: true },
-      description: "Image used for social sharing previews",
-    }),
-    defineField({
-      name: "readingTime",
-      title: "Estimated Reading Time",
-      type: "number",
-      description: "Minutes to read (auto-compute or manual entry)",
-    }),
+    },
   ],
-});
+};

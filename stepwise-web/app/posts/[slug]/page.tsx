@@ -1,15 +1,15 @@
+// app/posts/[slug]/page.tsx
 import { sanityClient } from "../../../lib/sanity.client";
 import { PortableText } from "@portabletext/react";
 import ReactMarkdown from "react-markdown";
-import { urlFor } from "../../../lib/urlFor";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import NextImage from "../../../lib/NextImage";
+import { urlFor } from "../../../lib/urlFor";
 
 export const revalidate = 60;
 
-// Pre-generate static params for all slugs
 export async function generateStaticParams() {
   const slugs: string[] = await sanityClient.fetch(
     `*[_type == "post" && defined(slug.current)][].slug.current`
@@ -17,7 +17,6 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-// Metadata for SEO/OG
 export async function generateMetadata({
   params,
 }: {
@@ -25,16 +24,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const post = await sanityClient.fetch(
-    `*[_type == "post" && slug.current == $slug][0]{
-      title,
-      excerpt,
-      seoTitle,
-      seoDescription,
-      openGraphImage,
-      publishedAt,
-      "author": author->{ name, "slug": slug.current },
-      "categories": categories[]->{ title, "slug": slug.current }
+  const { post, settings } = await sanityClient.fetch(
+    `{
+      "post": *[_type == "post" && slug.current == $slug][0]{
+        title,
+        excerpt,
+        seoTitle,
+        seoDescription,
+        openGraphImage,
+        publishedAt,
+        "author": author->{ name, "slug": slug.current },
+        "categories": categories[]->{ title, "slug": slug.current }
+      },
+      "settings": *[_type == "settings"][0]{
+        siteTitle,
+        openGraphImage
+      }
     }`,
     { slug }
   );
@@ -49,7 +54,9 @@ export async function generateMetadata({
   const title = post.seoTitle || post.title;
   const description = post.seoDescription || post.excerpt;
   const ogImage = post.openGraphImage
-    ? urlFor(post.openGraphImage).width(1200).url()
+    ? urlFor(post.openGraphImage).width(1200).height(630).url()
+    : settings?.openGraphImage
+    ? urlFor(settings.openGraphImage).width(1200).height(630).url()
     : undefined;
 
   return {
@@ -74,7 +81,6 @@ export async function generateMetadata({
   };
 }
 
-// Page component
 export default async function PostPage({
   params,
 }: {
@@ -140,8 +146,8 @@ export default async function PostPage({
       </div>
 
       {post.mainImage && (
-        <Image
-          src={urlFor(post.mainImage).width(800).url()}
+        <NextImage
+          source={post.mainImage}
           alt={post.title}
           width={800}
           height={450}
@@ -162,4 +168,3 @@ export default async function PostPage({
     </main>
   );
 }
-

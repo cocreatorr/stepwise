@@ -1,10 +1,49 @@
+// app/layout.tsx
 import "./globals.css";
 import Link from "next/link";
+import { sanityClient } from "../lib/sanity.client";
+import { urlFor } from "../lib/urlFor";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Stepwise Web",
-  description: "Developer insights, one clean commit at a time.",
-};
+export const revalidate = 60;
+
+// Dynamically fetch site settings for metadata (title + favicon + fallback OG image)
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await sanityClient.fetch(
+    `*[_type == "settings"][0]{
+      siteTitle,
+      favicon,
+      openGraphImage
+    }`
+  );
+
+  const siteTitle = settings?.siteTitle || "Stepwise Web";
+  const faviconUrl = settings?.favicon
+    ? urlFor(settings.favicon).width(32).height(32).url()
+    : undefined;
+  const ogImageUrl = settings?.openGraphImage
+    ? urlFor(settings.openGraphImage).width(1200).height(630).url()
+    : undefined;
+
+  return {
+    title: siteTitle,
+    description: "Developer insights, one clean commit at a time.",
+    icons: faviconUrl ? { icon: faviconUrl } : undefined,
+    openGraph: {
+      title: siteTitle,
+      description: "Developer insights, one clean commit at a time.",
+      images: ogImageUrl
+        ? [{ url: ogImageUrl, width: 1200, height: 630 }]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteTitle,
+      description: "Developer insights, one clean commit at a time.",
+      images: ogImageUrl ? [ogImageUrl] : [],
+    },
+  };
+}
 
 export default function RootLayout({
   children,
