@@ -15,7 +15,7 @@ export default {
       title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title', // ✅ auto-generate slug from title
+        source: 'title',
         maxLength: 96,
       },
       description: 'URL-friendly identifier (click "Generate" after entering a title).',
@@ -99,5 +99,28 @@ export default {
       description: 'Optional: social share image specific to this post.',
       options: { hotspot: true },
     },
+    {
+      name: "shareable",
+      title: "Enable Share Buttons",
+      type: "boolean",
+      description: "Toggle to show or hide share buttons for this post.",
+      initialValue: true // ✅ default to true
+    },
+    {
+      name: "sharePlatforms",
+      title: "Share Platforms",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "Copy Link", value: "copy" },
+          { title: "Twitter", value: "twitter" },
+          { title: "LinkedIn", value: "linkedin" },
+          { title: "WhatsApp", value: "whatsapp" }
+        ]
+      },
+      description: "Choose which share buttons appear for this post.",
+      initialValue: ["linkedin", "whatsapp"] // ✅ default platforms
+    }
   ],
 };

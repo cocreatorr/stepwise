@@ -2,11 +2,18 @@
 
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FaTwitter, FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
+import { FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6"; // ✅ updated icon for X (Twitter)
 
 type Platform = "twitter" | "linkedin" | "whatsapp" | "copy";
 
-export default function ShareButtons({ platforms = ["copy","linkedin","whatsapp"] }: { platforms?: Platform[] }) {
+interface ShareButtonsProps {
+  platforms?: Platform[];
+}
+
+export default function ShareButtons({
+  platforms = ["copy", "linkedin", "whatsapp"],
+}: ShareButtonsProps) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
 
@@ -23,6 +30,7 @@ export default function ShareButtons({ platforms = ["copy","linkedin","whatsapp"
 
   return (
     <div className="mt-8 flex gap-6 items-center text-sm">
+      {/* Copy Link */}
       {platforms.includes("copy") && (
         <button
           onClick={handleCopy}
@@ -34,21 +42,27 @@ export default function ShareButtons({ platforms = ["copy","linkedin","whatsapp"
         </button>
       )}
 
+      {/* X (Twitter) */}
       {platforms.includes("twitter") && (
         <a
-          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`}
+          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+            shareUrl
+          )}`}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Share on Twitter"
-          className="flex items-center gap-2 text-blue-500 hover:underline"
+          aria-label="Share on X"
+          className="flex items-center gap-2 text-black hover:underline"
         >
-          <FaTwitter /> Twitter
+          <FaXTwitter /> Share on X
         </a>
       )}
 
+      {/* LinkedIn */}
       {platforms.includes("linkedin") && (
         <a
-          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+            shareUrl
+          )}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on LinkedIn"
@@ -58,6 +72,7 @@ export default function ShareButtons({ platforms = ["copy","linkedin","whatsapp"
         </a>
       )}
 
+      {/* WhatsApp */}
       {platforms.includes("whatsapp") && (
         <a
           href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`}

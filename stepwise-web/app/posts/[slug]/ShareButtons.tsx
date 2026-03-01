@@ -3,9 +3,17 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6"; // ✅ newer icon for X (Twitter)
+import { FaXTwitter } from "react-icons/fa6"; // ✅ updated icon for X (Twitter)
 
-export default function ShareButtons() {
+type Platform = "twitter" | "linkedin" | "whatsapp" | "copy";
+
+interface ShareButtonsProps {
+  platforms?: Platform[];
+}
+
+export default function ShareButtons({
+  platforms = ["copy", "linkedin", "whatsapp"],
+}: ShareButtonsProps) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
 
@@ -23,51 +31,59 @@ export default function ShareButtons() {
   return (
     <div className="mt-8 flex gap-6 items-center text-sm">
       {/* Copy Link */}
-      <button
-        onClick={handleCopy}
-        aria-label="Copy link to clipboard"
-        className="flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
-      >
-        <FaLink />
-        {copied ? "Copied!" : "Copy Link"}
-      </button>
+      {platforms.includes("copy") && (
+        <button
+          onClick={handleCopy}
+          aria-label="Copy link to clipboard"
+          className="flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700"
+        >
+          <FaLink />
+          {copied ? "Copied!" : "Copy Link"}
+        </button>
+      )}
 
-      {/* X (formerly Twitter) */}
-      <a
-        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
-          shareUrl
-        )}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Share on X"
-        className="flex items-center gap-2 text-black hover:underline"
-      >
-        <FaXTwitter /> Share on X
-      </a>
+      {/* X (Twitter) */}
+      {platforms.includes("twitter") && (
+        <a
+          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+            shareUrl
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Share on X"
+          className="flex items-center gap-2 text-black hover:underline"
+        >
+          <FaXTwitter /> Share on X
+        </a>
+      )}
 
       {/* LinkedIn */}
-      <a
-        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-          shareUrl
-        )}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Share on LinkedIn"
-        className="flex items-center gap-2 text-blue-700 hover:underline"
-      >
-        <FaLinkedin /> LinkedIn
-      </a>
+      {platforms.includes("linkedin") && (
+        <a
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+            shareUrl
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Share on LinkedIn"
+          className="flex items-center gap-2 text-blue-700 hover:underline"
+        >
+          <FaLinkedin /> LinkedIn
+        </a>
+      )}
 
       {/* WhatsApp */}
-      <a
-        href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Share on WhatsApp"
-        className="flex items-center gap-2 text-green-600 hover:underline"
-      >
-        <FaWhatsapp /> WhatsApp
-      </a>
+      {platforms.includes("whatsapp") && (
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Share on WhatsApp"
+          className="flex items-center gap-2 text-green-600 hover:underline"
+        >
+          <FaWhatsapp /> WhatsApp
+        </a>
+      )}
     </div>
   );
 }
