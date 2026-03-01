@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import NextImage from "../../../lib/NextImage";
 import { urlFor } from "../../../lib/urlFor";
+import ShareButtons from "./ShareButtons"; // ✅ import configurable share buttons
 
 export const revalidate = 60;
 
@@ -17,6 +18,7 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+// ✅ Turbopack passes params as a Promise, so unwrap it
 export async function generateMetadata({
   params,
 }: {
@@ -45,10 +47,7 @@ export async function generateMetadata({
   );
 
   if (!post) {
-    return {
-      title: "Post not found",
-      description: "This post does not exist",
-    };
+    return { title: "Post not found", description: "This post does not exist" };
   }
 
   const title = post.seoTitle || post.title;
@@ -81,12 +80,15 @@ export async function generateMetadata({
   };
 }
 
+// ✅ Turbopack passes params as a Promise, so unwrap it
 export default async function PostPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (!slug) notFound();
 
   const post = await sanityClient.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -98,14 +100,14 @@ export default async function PostPage({
       "author": author->{ name, "slug": slug.current },
       "categories": categories[]->{ title, "slug": slug.current },
       publishedAt,
-      readingTime
+      readingTime,
+      shareable,
+      sharePlatforms
     }`,
     { slug }
   );
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12 bg-white text-black">
@@ -165,6 +167,11 @@ export default async function PostPage({
           <p>No content available.</p>
         )}
       </article>
+
+      {/* ✅ Share buttons only if shareable is true and platforms are selected */}
+      {post.shareable && post.sharePlatforms?.length > 0 && (
+        <ShareButtons platforms={post.sharePlatforms} />
+      )}
     </main>
   );
 }

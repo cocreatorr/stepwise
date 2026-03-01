@@ -4,6 +4,7 @@ import Link from "next/link";
 import NextImage from "../lib/NextImage";
 import { urlFor } from "../lib/urlFor";
 import type { Metadata } from "next";
+import ShareButtons from "./posts/[slug]/ShareButtons"; // ✅ import configurable share buttons
 
 export const revalidate = 60;
 
@@ -50,7 +51,9 @@ export default async function HomePage() {
       excerpt,
       mainImage,
       "author": author->{ name, "slug": slug.current },
-      "categories": categories[]->{ title, "slug": slug.current }
+      "categories": categories[]->{ title, "slug": slug.current },
+      shareable,
+      sharePlatforms
     },
     "settings": *[_type == "settings"][0]{
       siteTitle,
@@ -150,6 +153,11 @@ export default async function HomePage() {
                   </Link>
                 ))}
               </div>
+
+              {/* ✅ Share buttons only if shareable is true and platforms are selected */}
+              {post.shareable && post.sharePlatforms?.length > 0 && (
+                <ShareButtons platforms={post.sharePlatforms} />
+              )}
             </li>
           ))}
         </ul>
