@@ -14,7 +14,8 @@ interface ShareButtonsProps {
 export default function ShareButtons({
   platforms = ["copy", "linkedin", "whatsapp"],
 }: ShareButtonsProps) {
-  const pathname = usePathname();
+  // ✅ Ensure pathname is always a string
+  const pathname = usePathname() ?? "";
   const [copied, setCopied] = useState(false);
 
   const shareUrl =
@@ -23,6 +24,7 @@ export default function ShareButtons({
       : pathname;
 
   const handleCopy = () => {
+    if (!shareUrl) return; // safeguard
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
