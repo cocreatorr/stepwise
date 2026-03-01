@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FaLinkedin, FaWhatsapp, FaLink } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6"; // ✅ updated icon for X (Twitter)
+import { FaXTwitter } from "react-icons/fa6";
 
 type Platform = "twitter" | "linkedin" | "whatsapp" | "copy";
 
@@ -14,7 +14,7 @@ interface ShareButtonsProps {
 export default function ShareButtons({
   platforms = ["copy", "linkedin", "whatsapp"],
 }: ShareButtonsProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const [copied, setCopied] = useState(false);
 
   const shareUrl =
@@ -23,6 +23,7 @@ export default function ShareButtons({
       : pathname;
 
   const handleCopy = () => {
+    if (!shareUrl) return;
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -30,7 +31,6 @@ export default function ShareButtons({
 
   return (
     <div className="mt-8 flex gap-6 items-center text-sm">
-      {/* Copy Link */}
       {platforms.includes("copy") && (
         <button
           onClick={handleCopy}
@@ -42,7 +42,6 @@ export default function ShareButtons({
         </button>
       )}
 
-      {/* X (Twitter) */}
       {platforms.includes("twitter") && (
         <a
           href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
@@ -57,7 +56,6 @@ export default function ShareButtons({
         </a>
       )}
 
-      {/* LinkedIn */}
       {platforms.includes("linkedin") && (
         <a
           href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
@@ -72,7 +70,6 @@ export default function ShareButtons({
         </a>
       )}
 
-      {/* WhatsApp */}
       {platforms.includes("whatsapp") && (
         <a
           href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`}
